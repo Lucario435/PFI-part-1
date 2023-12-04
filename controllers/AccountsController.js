@@ -139,7 +139,7 @@ export default class AccountsController extends Controller {
                 let foundedUser = this.repository.findByField("Id", user.Id);
                 if (foundedUser != null) {
                     user.Authorizations = foundedUser.Authorizations; // user cannot change its own authorizations
-                    user.VerifyCode = foundedUser.VerifyCode;
+                    // user.VerifyCode = foundedUser.VerifyCode; //commit du prof
                     if (user.Password == '') { // password not changed
                         user.Password = foundedUser.Password;
                     }

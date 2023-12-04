@@ -2,7 +2,7 @@
 
 export function get(){
 
-    return html`
+    return `
     <form class="form" id="createProfilForm">
 <fieldset>
 <legend>Adresse ce courriel</legend>
@@ -69,4 +69,8 @@ waitingImage="images/Loading_icon.gif">
 <button class="form-control btn-secondary" id="abortCmd">Annuler</button>
 </div>`;
 
+}
+
+export function loadScript(){
+    initFormValidation()
 }

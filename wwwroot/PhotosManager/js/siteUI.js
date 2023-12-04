@@ -18,17 +18,29 @@ function restoreContentScrollPosition() {
     $("#content")[0].scrollTop = contentScrollPosition;
 }
 
-setTimeout(function(){ // reload chaque seconde
+setTimeout(function () { // reload chaque seconde
     // window.location.reload();
- }, 2000);
+}, 2000);
 
-import {get as getHeader} from "./views/header.js";
+import { get as getHeader, loadScript as lsHeader } from "./views/header.js";
+import { get as getCreateProfile, loadScript as lsCP } from "./views/createProfile.js";
+import { get as getLogin, loadScript as lsLogin } from "./views/login.js";
 
-
+let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
     $("#header").replaceWith(getHeader(titre)); //empty();
     //$("#header").append(getHeader());
+    lsHeader();
     currPage = pagename;
+    onPageChanged();
+}
+function onPageChange(func){
+    _onPageChangeFuncs.push(func);
+}
+function onPageChanged(){
+    _onPageChangeFuncs.forEach(func => {
+        func(currPage);
+    });
 }
 
 function renderAbout() {
@@ -54,21 +66,28 @@ function renderAbout() {
                 </p>
             </div>
         `))
+        onPageChanged();
 }
 
-renderAbout();
-
+function renderLoginForm() {
+    eraseContent();
+    UpdateHeader("Connexion", "login");
+    $("#newPhotoCmd").hide();
+    $("#content").append(getLogin());
+    lsLogin();
+    $("#loginCmd").on("click", () => { console.log("ok"); renderLoginForm() })
+    $("#createProfilCmd").on("click", () => { console.log("ok"); renderCreateProfil() })    
+    onPageChanged();
+}
 function renderCreateProfil() {
     noTimeout(); // ne pas limiter le temps d’inactivité
     eraseContent(); // effacer le conteneur #content
     UpdateHeader("Inscription", "createProfil"); // mettre à jour l’entête et menu
     $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
-    $("#content").append(`
-    …html du formulaire…
-    `);
+    $("#content").append(getCreateProfile());
+    lsCP();
     $('#loginCmd').on('click', renderLoginForm); // call back sur clic
     initFormValidation();
-    initImageUploaders();
     $('#abortCmd').on('click', renderLoginForm); // call back sur clic
     // ajouter le mécanisme de vérification de doublon de courriel
     addConflictValidation(API.checkConflictURL(), 'Email', 'saveUser');
@@ -81,4 +100,23 @@ function renderCreateProfil() {
         showWaitingGif(); // afficher GIF d’attente
         createProfil(profil); // commander la création au service API
     });
+    onPageChanged();
+   
+    // initImageUploaders();
 }
+
+function init() {
+    renderCreateProfil();
+    onPageChanged();
+}
+
+$(() => {
+    init();
+    onPageChange(()=>{
+        $("#loginCmd").on("click", () => {  renderLoginForm() })
+        $("#createProfilCmd").on("click", () => { renderCreateProfil() })    
+        initImageUploaders();
+        initFormValidation(); 
+    })
+    onPageChanged();
+})
