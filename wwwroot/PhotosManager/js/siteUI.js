@@ -1,4 +1,7 @@
 let contentScrollPosition = 0;
+let currPage = "";
+let loggedUser = API.retrieveLoggedUser();
+window.loggedUser = loggedUser;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
 function showWaitingGif() {
@@ -16,14 +19,16 @@ function restoreContentScrollPosition() {
 }
 
 setTimeout(function(){ // reload chaque seconde
-    window.location.reload();
+    // window.location.reload();
  }, 2000);
 
 import {get as getHeader} from "./views/header.js";
 
-function UpdateHeader() {
-    $("#header").empty();
-    $("#header").append(getHeader());
+
+function UpdateHeader(titre, pagename) {
+    $("#header").replaceWith(getHeader(titre)); //empty();
+    //$("#header").append(getHeader());
+    currPage = pagename;
 }
 
 function renderAbout() {
