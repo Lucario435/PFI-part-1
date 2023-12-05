@@ -7,9 +7,10 @@ function variableExist(name) {
 }
 
 export function get(title) {
-    console.log("salut");
+    // console.log("salut");
     let luser;
     let connected = false;
+    let isAdmin = false;
     try {
         if (loggedUser)
             connected = true;
@@ -19,7 +20,7 @@ export function get(title) {
     } else {
         // console.log(loggedUser);
         luser = loggedUser;
-    }
+    }3
     // ${
     //     exists ? `<i class="fa fa-edit" title="Modifier votre profil">
     //         <div class="UserAvatarSmall" userid="${luser.Id}" id="editProfilCmd"
@@ -28,6 +29,7 @@ export function get(title) {
     //     </i>` : ""
     // }
     connected = true;
+
     return `
     <div id="header">
     <span title="${title}" id="listPhotosCmd">
@@ -45,7 +47,7 @@ export function get(title) {
                     <i class="cmdIcon fa fa-ellipsis-vertical"></i>
                 </div>
                 <div class="dropdown-menu noselect">
-                    ${getDropdown(connected)}
+                    ${getDropdown(connected,isAdmin)}
                 </div>
             </div>
 
@@ -54,9 +56,9 @@ export function get(title) {
     `;
 }
 
-function getDropdown(connected) {
-    if (connected)
-        return getDropDownConnected();
+function getDropdown(connected,isAdmin) {
+    if (connected == true)
+        return getDropDownConnected(isAdmin);
     else
         return getDropDownAnonyme();
 }

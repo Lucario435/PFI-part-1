@@ -7,6 +7,7 @@ let defaultRequireMessage = "Obligatoire";
 let defaultInvalidMessage = "Format invalide";
 let defaultCustomErrorMessage = "Champ invalide";
 function initFormValidation() {
+    // console.log("haha");
     $(".Alpha").each(function () {
         $(this).attr("pattern", String.raw`^[a-zA-Z\- 'ààâäæáãåāèéêëęėēîïīįíìôōøõóòöœùûüūúÿçćčńñÀÂÄÆÁÃÅĀÈÉÊËĘĖĒÎÏĪĮÍÌÔŌØÕÓÒÖŒÙÛÜŪÚŸÇĆČŃÑ]*$`);
     });
@@ -130,9 +131,9 @@ function Conflict() {
 }
 function addConflictValidation(serviceUrl, fieldName, submitBtnId) {
     let fieldControl = $('#' + fieldName);
-    fieldControl.on("keyup", () => { DelayedConflictTestRequest(serviceUrl, fieldName) });
-    fieldControl.on("blur", () => { ConflictTestRequest(serviceUrl, fieldName) });
+    // fieldControl.on("keyup", () => { DelayedConflictTestRequest(serviceUrl, fieldName) }); //SAME HERE vv
+    // fieldControl.on("blur", () => { ConflictTestRequest(serviceUrl, fieldName) }); //REGLE LE PROBLEME DE CREATEPROFILE -MOMO
     $("#" + submitBtnId).on("click", () => { ConflictTestRequest(serviceUrl, fieldName) });
-    $("#" + submitBtnId).parents('form:first').on("submit", function (e) { return !Conflict(); });
+    $("#" + submitBtnId).parents('form:first').on("submit", function (e) { console.log("olo"); return !Conflict(); });
 }
 

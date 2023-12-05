@@ -1,6 +1,7 @@
 let contentScrollPosition = 0;
 let currPage = "";
 let loggedUser = API.retrieveLoggedUser();
+
 window.loggedUser = loggedUser;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
@@ -69,54 +70,82 @@ function renderAbout() {
         onPageChanged();
 }
 
-function renderLoginForm() {
+function renderLoginForm(loginMessage,Email,passwordError,EmailError) {
     eraseContent();
     UpdateHeader("Connexion", "login");
     $("#newPhotoCmd").hide();
-    $("#content").append(getLogin());
-    lsLogin();
-    $("#loginCmd").on("click", () => { console.log("ok"); renderLoginForm() })
-    $("#createProfilCmd").on("click", () => { console.log("ok"); renderCreateProfil() })    
+    $("#content").append(getLogin(loginMessage,Email,passwordError,EmailError));
+    
+    $("#loginCmd").on("click", () => { renderLoginForm() })
+    $("#createProfilCmd").on("click", (e) => {renderCreateProfil() })
+    $("#abortCmd").on("click",(e)=>{e.preventDefault(); });    
+    
+    $("#loginForm").on("submit",function(e){
+        e.preventDefault();
+        let datas = getFormData($(this));
+        let result = API.login(datas.Email,datas.Password)
+        console.log(result);
+    })
+    
     onPageChanged();
+    lsLogin();
 }
 function renderCreateProfil() {
     noTimeout(); // ne pas limiter le temps d’inactivité
     eraseContent(); // effacer le conteneur #content
     UpdateHeader("Inscription", "createProfil"); // mettre à jour l’entête et menu
     $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
-    $("#content").append(getCreateProfile());
-    lsCP();
-    $('#loginCmd').on('click', renderLoginForm); // call back sur clic
-    initFormValidation();
-    $('#abortCmd').on('click', renderLoginForm); // call back sur clic
+
+    $("#content").html(getCreateProfile());
+    
     // ajouter le mécanisme de vérification de doublon de courriel
-    addConflictValidation(API.checkConflictURL(), 'Email', 'saveUser');
+    
     // call back la soumission du formulaire
+    
     $('#createProfilForm').on("submit", function (event) {
-        let profil = getFormData($('#createProfilForm'));
+        event.preventDefault();// empêcher le fureteur de soumettre une requête de soumission
+        let profil = getFormData($(this));
         delete profil.matchedPassword;
         delete profil.matchedEmail;
-        event.preventDefault();// empêcher le fureteur de soumettre une requête de soumission
+        
         showWaitingGif(); // afficher GIF d’attente
-        createProfil(profil); // commander la création au service API
+        // createProfil(profil); // commander la création au service API
+        console.log(profil);
+        let profileData = API.register(profil);
+        profileData.then(function(x){
+            renderLoginForm("Votre compte a été créé. Veuillez vérifier vos courriels pour récupérer le code de vérification qui sera demandé à la connexion.")
+        },function(error){ renderLoginForm("Une erreur est survenue lors de l'inscription.") });
     });
     onPageChanged();
-   
+    
     // initImageUploaders();
-}
-
-function init() {
-    renderCreateProfil();
-    onPageChanged();
+    $('#loginCmd').on('click', renderLoginForm); // call back sur clic
+    $('#abortCmd').on('click', (e)=>{console.log("ok"); e.preventDefault();renderLoginForm(); }); // call back sur clic
+    lsCP(initFormValidation);// initFormValidation(); -- loadé dedans 
+    addConflictValidation(API.checkConflictURL(), 'Email', 'saveUserCmd');
 }
 
 $(() => {
-    init();
+    renderCreateProfil();
     onPageChange(()=>{
-        $("#loginCmd").on("click", () => {  renderLoginForm() })
-        $("#createProfilCmd").on("click", () => { renderCreateProfil() })    
-        initImageUploaders();
-        initFormValidation(); 
+        $("#loginCmd").on("click", (e) => {e.preventDefault();  renderLoginForm() })
+        $("#createProfilCmd").on("click", (e) => {e.preventDefault(); renderCreateProfil() })    
+        $("#abortCmd").on("click",(e)=>{e.preventDefault();});
+        $("#aboutCmd").on("click",renderAbout)
+        console.log("pageChanged");
+        // initImageUploaders();
+        // initFormValidation(); seront loadé sur les loadScript de page le voulant a place
     })
     onPageChanged();
 })
+
+function getFormData($form) {
+    var formData = {};
+    $form.find('input, select, textarea').each(function () {
+        var $input = $(this);
+        var name = $input.attr('name');
+        var value = $input.val();
+        formData[name] = value;
+    });
+    return formData;
+}

@@ -1,7 +1,6 @@
 
 
 export function get(){
-
     return `
     <form class="form" id="createProfilForm">
 <fieldset>
@@ -10,8 +9,7 @@ export function get(){
 class="form-control Email"
 name="Email"
 id="Email"
-placeholder="Courriel"
-required
+placeholder="Courriel" required
 RequireMessage = 'Veuillez entrer votre courriel'
 InvalidMessage = 'Courriel invalide'
 CustomErrorMessage ="Ce courriel est déjà utilisé"/>
@@ -66,11 +64,12 @@ waitingImage="images/Loading_icon.gif">
 <input type='submit' name='submit' id='saveUserCmd' value="Enregistrer" class="form-control btn-primary">
 </form>
 <div class="cancel">
-<button class="form-control btn-secondary" id="abortCmd">Annuler</button>
+<button type="button" class="form-control btn-secondary" id="abortCmd">Annuler</button>
 </div>`;
 
 }
 
-export function loadScript(){
-    initFormValidation()
+export function loadScript(initform){
+    initform();
+    initImageUploaders();
 }
