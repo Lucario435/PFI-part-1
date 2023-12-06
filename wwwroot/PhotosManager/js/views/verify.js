@@ -1,12 +1,13 @@
 
 export function get(erreurMsg){
     return `
-    <form class="form" id="loginForm">
+    <form class="form" id="verifyForm">
+    <span>Entrez votre code de vérification pour compléter l'inscription</span>
     <input type='text'
     name='vcode'
     class="form-control"
     required
-    RequireMessage = 'Veuillez entrer votre courriel'
+    RequireMessage = 'Veuillez entrer votre code de vérification'
     placeholder="Code vérification" >
     <span style='color:red'>${erreurMsg ? erreurMsg : ""}</span>
     <hr>

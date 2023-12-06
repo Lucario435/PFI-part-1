@@ -8,13 +8,12 @@ import { get as getProbleme, loadScript as lsPB } from "./views/probleme.js";
 
 let contentScrollPosition = 0;
 let currPage = "";
-let loggedUser = undefined; //API.retrieveLoggedUser();
-let atoken = undefined; //API.retrieveAccessToken();
+let loggedUser = API.retrieveLoggedUser();
+let atoken = API.retrieveAccessToken();
 let atokenExpire = undefined;
 
 window.loggedUser = loggedUser;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Views rendering
+
 function showWaitingGif() {
     eraseContent();
     $("#content").append($("<div class='waitingGifcontainer'><img class='waitingGif' src='images/Loading_icon.gif' /></div>'"));
@@ -114,10 +113,35 @@ function renderLoginForm(loginMessage, Email, passwordError, EmailError) {
     onPageChanged();
     lsLogin();
 }
-function renderVerify(){
-    UpdateHeader("Vérifiez votre compte","verify");
+function renderVerify(erreurMsg) {
+    UpdateHeader("Vérifiez votre compte", "verify");
     $("#newPhotoCmd").hide();
-    $("#content").html(getVerify());
+    $("#content").html(getVerify(erreurMsg));
+    $("#verifyForm").on("submit", function (e) {
+        e.preventDefault();
+        let datas = getFormData($(this));
+        let code = datas.vcode;
+    
+        try {
+            API.verifyEmail(loggedUser.Id, code)
+                .then((result) => {
+                    if (result) {
+                        API.eraseAccessToken();
+                        loggedUser = API.retrieveLoggedUser();
+                        renderDefault();
+                    } else {
+                        renderVerify("Code invalide");
+                    }
+                })
+
+
+                .catch((err) => {
+                    renderVerify("Une erreur est survenue");
+                });
+        } catch (err) {
+            renderProbleme("Une erreur est survenue");
+        }
+    });
     lsVF();
  }
 function renderProbleme(msg){
@@ -136,20 +160,20 @@ function renderDefault() { //page sur laquelle on va si non logged
     return renderAbout() //si on  est connecté et vérifie
 }
 let isNotLogged = () => !isLogged(); function isLogged() {
-    console.log(atokenExpire + " // "+Math.floor((Date.now()/1000)))
-    if (atokenExpire < Math.floor((Date.now()/1000))) {
+    // console.log(atokenExpire + " // " + Math.floor((Date.now() / 1000)))
+    if (atokenExpire < Math.floor((Date.now() / 1000))) {
         atoken = undefined;
         loggedUser = undefined;
         // console.log("und");
         return renderProbleme("Session expiré!");
     }
     let firstbool = atoken != undefined && loggedUser != undefined;
-    console.log(firstbool);
+    // console.log(firstbool);
     console.log(loggedUser);
     if(firstbool)
         firstbool = firstbool && loggedUser.VerifyCode == "verified";
 
-    console.log("islogged: "+firstbool);
+    // console.log("islogged: " + firstbool);
     return firstbool;
 }
 
@@ -200,8 +224,26 @@ function renderEditProfil() {
     onPageChanged();
     lsEP(initFormValidation);
     addConflictValidation(API.checkConflictURL(), 'Email', 'saveUserCmd')
+    //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
 }
 
+function renderConfirmDeleteAccount() {
+    //Vérifier si le user est connecté
+    if (isNotLogged()) { return renderDefault(); }
+    noTimeout(); // ne pas limiter le temps d’inactivité
+    eraseContent(); // effacer le conteneur #content
+    $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
+    UpdateHeader("Retrait de compte", "deleteProfil"); // mettre à jour l’entête et menu
+    $("#content").html(getConfirmDeleteAccount());
+    onPageChanged();
+    $("#abortCmd").on("click", (e) => { e.preventDefault(); renderEditProfil() });
+}
+
+function deleteAccount() {
+    // if (isNotLogged()) { return renderDefault(); }
+    API.unsubscribeAccount(loggedUser.Id);
+    renderLoginForm("Votre compte a été supprimé!")
+}
 $(() => {
     renderLoginForm();
     onPageChange(() => {
