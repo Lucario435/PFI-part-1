@@ -20,7 +20,6 @@ export function get(title,isLoggedFunc,loggedUser) {
 
     if(isLoggedFunc()){
         connected = true;
-        profilPicture
         if(loggedUser.Authorizations.WriteAccess == 3){
             isAdmin = true;
         }
