@@ -6,30 +6,16 @@ function variableExist(name) {
     } return false;
 }
 
-export function get(title) {
+export function get(title,isLoggedFunc,loggedUser) {
     // console.log("salut");
-    let luser;
-    let connected = false;
     let isAdmin = false;
-    try {
-        if (loggedUser)
-            connected = true;
-    } catch (err) { connected = false; }
-    if (!connected) {
-        luser = { "Id": -1, "Avatar": "" };
-    } else {
-        // console.log(loggedUser);
-        luser = loggedUser;
+    let connected = false;
+    if(isLoggedFunc()){
+        connected = true;
+        if(loggedUser.Authorizations.WriteAccess == 3){
+            isAdmin = true;
+        }
     }
-    // ${
-    //     exists ? `<i class="fa fa-edit" title="Modifier votre profil">
-    //         <div class="UserAvatarSmall" userid="${luser.Id}" id="editProfilCmd"
-    //         style="background-image:url('${luser.Avatar}')"
-    //         title="Nicolas Chourot"></div>
-    //     </i>` : ""
-    // }
-    connected = true;
-
     return `
     <div id="header">
     <span title="${title}" id="listPhotosCmd">
@@ -75,17 +61,16 @@ function getDropDownAnonyme() {
     
     `;
 }
-function getDropDownConnected() {
-    
+function getDropDownConnected(isAdmin) {
     return `
-    <span class="dropdown-item" id="manageUserCm">
-<i class="menuIcon fas fa-user-cog mx-2"></i>
-Gestion des usagers
-</span>
+    ${isAdmin? `<span class="dropdown-item" id="manageUserCm">
+    <i class="menuIcon fas fa-user-cog mx-2"></i>
+    Gestion des usagers
+    </span>` : ""}
 <div class="dropdown-divider"></div>
-<span class="dropdown-item" id="loginCmd">
+<span class="dropdown-item" id="logoutCmd">
 <i class="menuIcon fa fa-sign-out mx-2"></i>
-Connexion
+Déconnexion
 </span>
 <span class="dropdown-item" id="editProfilMenuCmd">
 <i class="menuIcon fa fa-user-edit mx-2"></i>
@@ -130,9 +115,6 @@ Mes photos
     <div class="dropdown-item" id="logoutCmd">
         <i class="menuIcon fa fa-sign-out mx-2"></i> Déconnexion
     </div>
-    <div class="dropdown-item" id="loginCmd">
-        <i class="menuIcon fa fa-sign-in mx-2"></i> Connexion
-    </div>
     <div class="dropdown-divider"></div>
     <div class="dropdown-item" id="lsphotosSpan">
         <i class="menuIcon fa fa-image mx-2"></i> Liste des photos
@@ -148,7 +130,7 @@ Mes photos
     `;
 }
 
-export function loadScript(){
+export function loadScript(logoutClickFunc){
     function deselectAll(){
         $("i.fa-check").replaceWith($(`<i class="menuIcon fa fa-fw mx-2"></i>`));
     }
@@ -156,5 +138,9 @@ export function loadScript(){
         deselectAll();
         $(this).find("i.fa-fw").replaceWith($(`<i class="menuIcon fa fa-check mx-2"></i>`))
         console.log($(this).attr("id")); //voila le id
+    })
+
+    $("#logoutCmd").on("click",function(){
+        logoutClickFunc();
     })
 }

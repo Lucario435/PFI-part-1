@@ -3,10 +3,16 @@ import { get as getCreateProfile, loadScript as lsCP } from "./views/createProfi
 import { get as getLogin, loadScript as lsLogin } from "./views/login.js";
 import { get as getEditProfile, loadScript as lsEP} from "./views/editProfile.js";
 import { get as getConfirmDeleteAccount} from "./views/confirmDeleteProfile.js";
+import { get as getEditProfile, loadScript as lsEP } from "./views/editProfile.js";
+import { get as getVerify, loadScript as lsVF } from "./views/verify.js";
+import { get as getProbleme, loadScript as lsPB } from "./views/probleme.js";
+
 
 let contentScrollPosition = 0;
 let currPage = "";
-let loggedUser = API.retrieveLoggedUser();
+let loggedUser = undefined; //API.retrieveLoggedUser();
+let atoken = undefined; //API.retrieveAccessToken();
+let atokenExpire = undefined;
 
 window.loggedUser = loggedUser;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,16 +39,24 @@ setTimeout(function () { // reload chaque seconde
 
 let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
-    $("#header").replaceWith(getHeader(titre)); //empty();
+    $("#header").replaceWith(getHeader(titre,isLogged,loggedUser)); //empty();
     //$("#header").append(getHeader());
-    lsHeader();
+    lsHeader(logoutClick);
     currPage = pagename;
     onPageChanged();
 }
-function onPageChange(func){
+function logoutClick(){
+    // console.log("log out")
+    API.logout();
+    loggedUser = undefined;
+    atoken = undefined;
+    atokenExpire = undefined;
+    renderDefault();
+}
+function onPageChange(func) {
     _onPageChangeFuncs.push(func);
 }
-function onPageChanged(){
+function onPageChanged() {
     _onPageChangeFuncs.forEach(func => {
         func(currPage);
     });
@@ -71,60 +85,110 @@ function renderAbout() {
                 </p>
             </div>
         `))
-        onPageChanged();
+    onPageChanged();
 }
 
-function renderLoginForm(loginMessage,Email,passwordError,EmailError) {
+function renderLoginForm(loginMessage, Email, passwordError, EmailError) {
+    // API.eraseLoggedUser();
     eraseContent();
     UpdateHeader("Connexion", "login");
     $("#newPhotoCmd").hide();
-    $("#content").append(getLogin(loginMessage,Email,passwordError,EmailError));
-    
+    $("#content").append(getLogin(loginMessage, Email, passwordError, EmailError));
+
     $("#loginCmd").on("click", () => { renderLoginForm() })
-    $("#createProfilCmd").on("click", (e) => {renderCreateProfil() })
-    $("#abortCmd").on("click",(e)=>{e.preventDefault(); });    
-    
-    $("#loginForm").on("submit",function(e){
+    $("#createProfilCmd").on("click", (e) => { renderCreateProfil() })
+    $("#abortCmd").on("click", (e) => { e.preventDefault(); });
+
+    $("#loginForm").on("submit", function (e) {
         e.preventDefault();
         let datas = getFormData($(this));
-        let result = API.login(datas.Email,datas.Password)
-        console.log(result);
+        let result = API.login(datas.Email, datas.Password)
+        // console.log(result);
+        result.then((u)=>{
+            atoken          = API.retrieveAccessToken();
+            atokenExpire    = API.retrieveAtokenExpire();
+            loggedUser      = u;
+            // console.log(atoken);
+            if(atoken != undefined){
+                renderDefault();
+            }
+        })
     })
-    
+
     onPageChanged();
     lsLogin();
 }
+function renderVerify(){
+    UpdateHeader("Vérifiez votre compte","verify");
+    $("#newPhotoCmd").hide();
+    $("#content").html(getVerify());
+    lsVF();
+ }
+function renderProbleme(msg){
+    UpdateHeader("Problème","problem");
+    $("#content").html(getProbleme());
+    lsPB();
+}
+function renderDefault() { //page sur laquelle on va si non logged
+    if(loggedUser != undefined)
+        if(loggedUser.VerifyCode != "verified")
+            return renderVerify();
+
+    if(atoken == undefined)
+        return renderLoginForm();
+
+    return renderAbout() //si on  est connecté et vérifie
+}
+let isNotLogged = () => !isLogged(); function isLogged() {
+    console.log(atokenExpire + " // "+Math.floor((Date.now()/1000)))
+    if (atokenExpire < Math.floor((Date.now()/1000))) {
+        atoken = undefined;
+        loggedUser = undefined;
+        // console.log("und");
+        return renderProbleme("Session expiré!");
+    }
+    let firstbool = atoken != undefined && loggedUser != undefined;
+    console.log(firstbool);
+    console.log(loggedUser);
+    if(firstbool)
+        firstbool = firstbool && loggedUser.VerifyCode == "verified";
+
+    console.log("islogged: "+firstbool);
+    return firstbool;
+}
 
 function renderCreateProfil() {
+    if(isLogged()){return renderDefault(); }
     noTimeout(); // ne pas limiter le temps d’inactivité
     eraseContent(); // effacer le conteneur #content
     UpdateHeader("Inscription", "createProfil"); // mettre à jour l’entête et menu
     $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
 
     $("#content").html(getCreateProfile());
-    
+
     // ajouter le mécanisme de vérification de doublon de courriel
-    
     // call back la soumission du formulaire
-    
+
     $('#createProfilForm').on("submit", function (event) {
         event.preventDefault();// empêcher le fureteur de soumettre une requête de soumission
         let profil = getFormData($(this));
+        delete profil.submit;
+        delete profil.undefined;
         delete profil.matchedPassword;
         delete profil.matchedEmail;
-        
+
         showWaitingGif(); // afficher GIF d’attente
         // createProfil(profil); // commander la création au service API
         let profileData = API.register(profil);
-        profileData.then(function(x){
+        profileData.then(function (x) {
             renderLoginForm("Votre compte a été créé. Veuillez vérifier vos courriels pour récupérer le code de vérification qui sera demandé à la connexion.")
-        },function(error){ renderLoginForm("Une erreur est survenue lors de l'inscription.") });
+        }, function (error) { renderLoginForm("Une erreur est survenue lors de l'inscription.") });
     });
     onPageChanged();
-    
+
     // initImageUploaders();
     $('#loginCmd').on('click', renderLoginForm); // call back sur clic
-    $('#abortCmd').on('click', (e)=>{console.log("ok"); e.preventDefault();renderLoginForm(); }); // call back sur clic
+    $('#abortCmd').on('click', (e) => { console.log("ok"); e.preventDefault(); renderLoginForm(); }); // call back sur clic
     lsCP(initFormValidation);// initFormValidation(); -- loadé dedans 
     addConflictValidation(API.checkConflictURL(), 'Email', 'saveUserCmd');
 }
