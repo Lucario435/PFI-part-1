@@ -1,9 +1,8 @@
 import { get as getHeader, loadScript as lsHeader } from "./views/header.js";
 import { get as getCreateProfile, loadScript as lsCP } from "./views/createProfile.js";
 import { get as getLogin, loadScript as lsLogin } from "./views/login.js";
-import { get as getEditProfile, loadScript as lsEP} from "./views/editProfile.js";
-import { get as getConfirmDeleteAccount} from "./views/confirmDeleteProfile.js";
 import { get as getEditProfile, loadScript as lsEP } from "./views/editProfile.js";
+import { get as getConfirmDeleteAccount } from "./views/confirmDeleteProfile.js";
 import { get as getVerify, loadScript as lsVF } from "./views/verify.js";
 import { get as getProbleme, loadScript as lsPB } from "./views/probleme.js";
 
@@ -39,13 +38,13 @@ setTimeout(function () { // reload chaque seconde
 
 let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
-    $("#header").replaceWith(getHeader(titre,isLogged,loggedUser)); //empty();
+    $("#header").replaceWith(getHeader(titre, isLogged, loggedUser)); //empty();
     //$("#header").append(getHeader());
     lsHeader(logoutClick);
     currPage = pagename;
     onPageChanged();
 }
-function logoutClick(){
+function logoutClick() {
     // console.log("log out")
     API.logout();
     loggedUser = undefined;
@@ -104,12 +103,12 @@ function renderLoginForm(loginMessage, Email, passwordError, EmailError) {
         let datas = getFormData($(this));
         let result = API.login(datas.Email, datas.Password)
         // console.log(result);
-        result.then((u)=>{
-            atoken          = API.retrieveAccessToken();
-            atokenExpire    = API.retrieveAtokenExpire();
-            loggedUser      = u;
+        result.then((u) => {
+            atoken = API.retrieveAccessToken();
+            atokenExpire = API.retrieveAtokenExpire();
+            loggedUser = u;
             // console.log(atoken);
-            if(atoken != undefined){
+            if (atoken != undefined) {
                 renderDefault();
             }
         })
@@ -118,30 +117,30 @@ function renderLoginForm(loginMessage, Email, passwordError, EmailError) {
     onPageChanged();
     lsLogin();
 }
-function renderVerify(){
-    UpdateHeader("Vérifiez votre compte","verify");
+function renderVerify() {
+    UpdateHeader("Vérifiez votre compte", "verify");
     $("#newPhotoCmd").hide();
     $("#content").html(getVerify());
     lsVF();
- }
-function renderProbleme(msg){
-    UpdateHeader("Problème","problem");
+}
+function renderProbleme(msg) {
+    UpdateHeader("Problème", "problem");
     $("#content").html(getProbleme());
     lsPB();
 }
 function renderDefault() { //page sur laquelle on va si non logged
-    if(loggedUser != undefined)
-        if(loggedUser.VerifyCode != "verified")
+    if (loggedUser != undefined)
+        if (loggedUser.VerifyCode != "verified")
             return renderVerify();
 
-    if(atoken == undefined)
+    if (atoken == undefined)
         return renderLoginForm();
 
     return renderAbout() //si on  est connecté et vérifie
 }
 let isNotLogged = () => !isLogged(); function isLogged() {
-    console.log(atokenExpire + " // "+Math.floor((Date.now()/1000)))
-    if (atokenExpire < Math.floor((Date.now()/1000))) {
+    console.log(atokenExpire + " // " + Math.floor((Date.now() / 1000)))
+    if (atokenExpire < Math.floor((Date.now() / 1000))) {
         atoken = undefined;
         loggedUser = undefined;
         // console.log("und");
@@ -150,15 +149,15 @@ let isNotLogged = () => !isLogged(); function isLogged() {
     let firstbool = atoken != undefined && loggedUser != undefined;
     console.log(firstbool);
     console.log(loggedUser);
-    if(firstbool)
+    if (firstbool)
         firstbool = firstbool && loggedUser.VerifyCode == "verified";
 
-    console.log("islogged: "+firstbool);
+    console.log("islogged: " + firstbool);
     return firstbool;
 }
 
 function renderCreateProfil() {
-    if(isLogged()){return renderDefault(); }
+    if (isLogged()) { return renderDefault(); }
     noTimeout(); // ne pas limiter le temps d’inactivité
     eraseContent(); // effacer le conteneur #content
     UpdateHeader("Inscription", "createProfil"); // mettre à jour l’entête et menu
@@ -193,91 +192,66 @@ function renderCreateProfil() {
     addConflictValidation(API.checkConflictURL(), 'Email', 'saveUserCmd');
 }
 
-function renderEditProfil()
-{
-    //À vérifier : Enlever du header la partie edit profil si pas connecté
+function renderEditProfil() {
+    if (isNotLogged()) { return renderDefault(); }
+    noTimeout(); // ne pas limiter le temps d’inactivité
+    eraseContent(); // effacer le conteneur #content
+    UpdateHeader("Modification de profil", "editProfil"); // mettre à jour l’entête et menu
+    $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
+    $("#content").html(getEditProfile(loggedUser));
 
-    //Vérifier si le user est connecté
-    if(loggedUser != null)
-    {
-        noTimeout(); // ne pas limiter le temps d’inactivité
-        eraseContent(); // effacer le conteneur #content
-        UpdateHeader("Modification de profil", "editProfil"); // mettre à jour l’entête et menu
-        $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
-        $("#content").html(getEditProfile(loggedUser));
+    $('#editProfilForm').on("submit", function (event) {
+        event.preventDefault();// empêcher le fureteur de soumettre une requête de soumission
+        let profil = getFormData($(this));
+        delete profil.matchedPassword;
+        delete profil.matchedEmail;
+        showWaitingGif(); // afficher GIF d’attente
+        // createProfil(profil); // commander la création au service API
 
-        $('#editProfilForm').on("submit", function (event) {
-            event.preventDefault();// empêcher le fureteur de soumettre une requête de soumission
-            let profil = getFormData($(this));
-            delete profil.matchedPassword;
-            delete profil.matchedEmail;
-            showWaitingGif(); // afficher GIF d’attente
-            // createProfil(profil); // commander la création au service API
+        let profileData = API.modifyUserProfil(profil);
+        profileData.then(function (x) {
+            renderLoginForm("Votre compte a été modifié!")
+        }, function (error) { renderLoginForm("Une erreur est survenue lors de la modification.") });
+    });
 
-            let profileData = API.modifyUserProfil(profil);
-            profileData.then(function(x){
-                renderLoginForm("Votre compte a été modifié!")
-            },function(error){ renderLoginForm("Une erreur est survenue lors de la modification.") });
-        });
-
-        onPageChanged();
-        lsEP(initFormValidation);
-        //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
-    }
-    //Sinon, on redirige vers la page de connexion
-    else
-    {
-        renderLoginForm();
-    }
+    onPageChanged();
+    lsEP(initFormValidation);
+    //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
 }
 
-function renderConfirmDeleteAccount(){
+function renderConfirmDeleteAccount() {
     //Vérifier si le user est connecté
-    if(loggedUser != null)
-    {
-        noTimeout(); // ne pas limiter le temps d’inactivité
-        eraseContent(); // effacer le conteneur #content
-        $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
-        UpdateHeader("Retrait de compte", "deleteProfil"); // mettre à jour l’entête et menu
-        $("#content").html(getConfirmDeleteAccount());
-        onPageChanged();
-        $("#abortCmd").on("click",(e)=>{e.preventDefault(); renderEditProfil() });
-    }
-    //Sinon, on redirige vers la page de connexion
-    else
-    {
-        renderLoginForm();
-    }
+    if (isNotLogged()) { return renderDefault(); }
+    noTimeout(); // ne pas limiter le temps d’inactivité
+    eraseContent(); // effacer le conteneur #content
+    $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
+    UpdateHeader("Retrait de compte", "deleteProfil"); // mettre à jour l’entête et menu
+    $("#content").html(getConfirmDeleteAccount());
+    onPageChanged();
+    $("#abortCmd").on("click", (e) => { e.preventDefault(); renderEditProfil() });
 }
 
-function deleteAccount(){
-    console.log(loggedUser.Id)
-    if(loggedUser != null)
-    {
-        API.unsubscribeAccount(loggedUser.Id);
-        renderLoginForm("Votre compte a été supprimé!")
-    }
-    else
-    {
-        renderLoginForm();
-    }
+function deleteAccount() {
+    if (isNotLogged()) { return renderDefault(); }
+    API.unsubscribeAccount(loggedUser.Id);
+    renderLoginForm("Votre compte a été supprimé!")
 }
 
 $(() => {
     renderLoginForm();
-    onPageChange(()=>{
-        $("#loginCmd").on("click", (e) => {e.preventDefault();  renderLoginForm() })
-        $("#createProfilCmd").on("click", (e) => {e.preventDefault(); renderCreateProfil() })    
-        $("#abortCmd").on("click",(e)=>{e.preventDefault();});
-        $("#aboutCmd").on("click",renderAbout)
+    onPageChange(() => {
+        $("#loginCmd").on("click", (e) => { e.preventDefault(); renderLoginForm() })
+        $("#createProfilCmd").on("click", (e) => { e.preventDefault(); renderCreateProfil() })
+        $("#abortCmd").on("click", (e) => { e.preventDefault(); });
+        $("#aboutCmd").on("click", renderAbout)
 
         //-------EDIT PROFIL
-        $("#editProfilMenuCmd").on("click", (e) => {e.preventDefault(); renderEditProfil() })
+        $("#editProfilMenuCmd").on("click", (e) => { e.preventDefault(); renderEditProfil() })
         //------------------
 
         //-------DELETE ACCOUNT
-        $("#deletePageCmd").on("click", (e)=> {e.preventDefault(); renderConfirmDeleteAccount() });
-        $("#deleteAccountCmd").on("click", (e)=> {e.preventDefault(); deleteAccount() });//delete account
+        $("#deletePageCmd").on("click", (e) => { e.preventDefault(); renderConfirmDeleteAccount() });
+        $("#deleteAccountCmd").on("click", (e) => { e.preventDefault(); deleteAccount() });//delete account
         //-----------------------
     })
     onPageChanged();
