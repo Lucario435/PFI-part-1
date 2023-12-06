@@ -20,7 +20,7 @@ export function get(title) {
     } else {
         // console.log(loggedUser);
         luser = loggedUser;
-    }3
+    }
     // ${
     //     exists ? `<i class="fa fa-edit" title="Modifier votre profil">
     //         <div class="UserAvatarSmall" userid="${luser.Id}" id="editProfilCmd"

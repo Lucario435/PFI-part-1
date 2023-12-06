@@ -30,9 +30,7 @@
         "Email": "createProfil@gmail.com",
         "Password": "createProfil@gmail.com",
         "Name": "createProfil",
-        "undefined": "",
         "Avatar": "dcddb451-93a8-11ee-8fd7-914cacd63a7f.jpeg",
-        "submit": "Enregistrer",
         "Created": 1701806396,
         "VerifyCode": 3617,
         "Authorizations": {
@@ -42,14 +40,14 @@
     },
     {
         "Id": "32585960-9441-11ee-8b28-dd89f6d2b036",
+        "VerifyCode": "verified",
         "Email": "jobillette@hotmail.com",
         "Password": "123456",
         "Name": "Jonathan",
-        "undefined": "",
-        "Avatar": "",
+        "undefined": "C:\\fakepath\\images.jpeg",
+        "Avatar": "d4f70f80-945b-11ee-be1d-d59e84ef181d.jpeg",
         "submit": "Enregistrer",
-        "Created": 1701871823,
-        "VerifyCode": 606239,
+        "Created": 1701883263,
         "Authorizations": {
             "readAccess": 1,
             "writeAccess": 1

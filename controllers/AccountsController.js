@@ -154,9 +154,13 @@ export default class AccountsController extends Controller {
                     }
                     else {
                         if (this.repository.model.state.inConflict)
+                        {
                             this.HttpContext.response.conflict(this.repository.model.state.errors);
+                        }
                         else
+                        {
                             this.HttpContext.response.badRequest(this.repository.model.state.errors);
+                        }
                     }
                 } else
                     this.HttpContext.response.notFound();

@@ -2,6 +2,7 @@ import { get as getHeader, loadScript as lsHeader } from "./views/header.js";
 import { get as getCreateProfile, loadScript as lsCP } from "./views/createProfile.js";
 import { get as getLogin, loadScript as lsLogin } from "./views/login.js";
 import { get as getEditProfile, loadScript as lsEP} from "./views/editProfile.js";
+import { get as getConfirmDeleteAccount} from "./views/confirmDeleteProfile.js";
 
 let contentScrollPosition = 0;
 let currPage = "";
@@ -24,9 +25,11 @@ function restoreContentScrollPosition() {
     $("#content")[0].scrollTop = contentScrollPosition;
 }
 
+/*
 setTimeout(function () { // reload chaque seconde
     // window.location.reload();
 }, 2000);
+*/
 
 let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
@@ -112,7 +115,6 @@ function renderCreateProfil() {
         
         showWaitingGif(); // afficher GIF d’attente
         // createProfil(profil); // commander la création au service API
-        console.log(profil);
         let profileData = API.register(profil);
         profileData.then(function(x){
             renderLoginForm("Votre compte a été créé. Veuillez vérifier vos courriels pour récupérer le code de vérification qui sera demandé à la connexion.")
@@ -130,6 +132,7 @@ function renderCreateProfil() {
 function renderEditProfil()
 {
     //À vérifier : Enlever du header la partie edit profil si pas connecté
+
     //Vérifier si le user est connecté
     if(loggedUser != null)
     {
@@ -138,11 +141,58 @@ function renderEditProfil()
         UpdateHeader("Modification de profil", "editProfil"); // mettre à jour l’entête et menu
         $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
         $("#content").html(getEditProfile(loggedUser));
+
+        $('#editProfilForm').on("submit", function (event) {
+            event.preventDefault();// empêcher le fureteur de soumettre une requête de soumission
+            let profil = getFormData($(this));
+            delete profil.matchedPassword;
+            delete profil.matchedEmail;
+            showWaitingGif(); // afficher GIF d’attente
+            // createProfil(profil); // commander la création au service API
+
+            let profileData = API.modifyUserProfil(profil);
+            profileData.then(function(x){
+                renderLoginForm("Votre compte a été modifié!")
+            },function(error){ renderLoginForm("Une erreur est survenue lors de la modification.") });
+        });
+
         onPageChanged();
         lsEP(initFormValidation);
-        addConflictValidation(API.checkConflictURL(), 'Email', 'saveUserCmd');
+        //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
     }
     //Sinon, on redirige vers la page de connexion
+    else
+    {
+        renderLoginForm();
+    }
+}
+
+function renderConfirmDeleteAccount(){
+    //Vérifier si le user est connecté
+    if(loggedUser != null)
+    {
+        noTimeout(); // ne pas limiter le temps d’inactivité
+        eraseContent(); // effacer le conteneur #content
+        $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
+        UpdateHeader("Retrait de compte", "deleteProfil"); // mettre à jour l’entête et menu
+        $("#content").html(getConfirmDeleteAccount());
+        onPageChanged();
+        $("#abortCmd").on("click",(e)=>{e.preventDefault(); renderEditProfil() });
+    }
+    //Sinon, on redirige vers la page de connexion
+    else
+    {
+        renderLoginForm();
+    }
+}
+
+function deleteAccount(){
+    console.log(loggedUser.Id)
+    if(loggedUser != null)
+    {
+        API.unsubscribeAccount(loggedUser.Id);
+        renderLoginForm("Votre compte a été supprimé!")
+    }
     else
     {
         renderLoginForm();
@@ -156,10 +206,15 @@ $(() => {
         $("#createProfilCmd").on("click", (e) => {e.preventDefault(); renderCreateProfil() })    
         $("#abortCmd").on("click",(e)=>{e.preventDefault();});
         $("#aboutCmd").on("click",renderAbout)
-        $("#editProfilMenuCmd").on("click",renderEditProfil)
-        console.log("pageChanged");
-        // initImageUploaders();
-        // initFormValidation(); seront loadé sur les loadScript de page le voulant a place
+
+        //-------EDIT PROFIL
+        $("#editProfilMenuCmd").on("click", (e) => {e.preventDefault(); renderEditProfil() })
+        //------------------
+
+        //-------DELETE ACCOUNT
+        $("#deletePageCmd").on("click", (e)=> {e.preventDefault(); renderConfirmDeleteAccount() });
+        $("#deleteAccountCmd").on("click", (e)=> {e.preventDefault(); deleteAccount() });//delete account
+        //-----------------------
     })
     onPageChanged();
 })

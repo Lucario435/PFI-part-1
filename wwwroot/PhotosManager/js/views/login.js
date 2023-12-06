@@ -1,5 +1,5 @@
 export function get(loginMessage, Email, passwordError, EmailError){
-    return `<h3>${loginMessage ? loginMessage : ""}</h3>
+    return `<h3 style="text-align:center;">${loginMessage ? loginMessage : ""}</h3>
     <form class="form" id="loginForm">
     <input type='email'
     name='Email'
