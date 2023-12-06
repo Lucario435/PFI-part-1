@@ -20,6 +20,12 @@ class API {
     static storeAccessToken(token) {
         sessionStorage.setItem('access_Token', token);
     }
+    static storeAtokenExpire(expire){
+        sessionStorage.setItem("Expire_At",expire)
+    }
+    static retrieveAtokenExpire(){
+        return sessionStorage.getItem("Expire_At")
+    }
     static eraseAccessToken() {
         sessionStorage.removeItem('access_Token');
     }
@@ -89,6 +95,7 @@ class API {
                 data: JSON.stringify({ Email, Password }),
                 success: async token => {
                     API.storeAccessToken(token.Access_token);
+                    API.storeAtokenExpire(token.Expire_Time);
                     API.storeLoggedUser(token.User);
                     resolve(token.User);
                 },

@@ -30,11 +30,9 @@
         "Email": "createProfil@gmail.com",
         "Password": "createProfil@gmail.com",
         "Name": "createProfil",
-        "undefined": "",
         "Avatar": "dcddb451-93a8-11ee-8fd7-914cacd63a7f.jpeg",
-        "submit": "Enregistrer",
         "Created": 1701806396,
-        "VerifyCode": 3617,
+        "VerifyCode": "verified",
         "Authorizations": {
             "readAccess": 1,
             "writeAccess": 1

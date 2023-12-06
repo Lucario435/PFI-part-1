@@ -8,7 +8,7 @@ import { log } from "./log.js";
 global.tokensRepository = new Repository(new Token());
 
 global.tokenLifeDuration = ServerVariables.get("main.token.lifeDuration");
-
+let tokenLifeDuration = global.tokenLifeDuration;
 export default
     class TokensManager {
     static create(user) {
