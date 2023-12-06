@@ -10,8 +10,17 @@ export function get(title,isLoggedFunc,loggedUser) {
     // console.log("salut");
     let isAdmin = false;
     let connected = false;
+    let profilPictureLink = "";
+
+    if(!profilPictureLink.includes("jpeg"))
+    {
+        console.log("is empty");
+        profilPictureLink = "images/no-avatar.png";
+    }
+
     if(isLoggedFunc()){
         connected = true;
+        profilPicture
         if(loggedUser.Authorizations.WriteAccess == 3){
             isAdmin = true;
         }
@@ -27,6 +36,7 @@ export function get(title,isLoggedFunc,loggedUser) {
         <div class="headerMenusContainer">
             <span>&nbsp;</span> <!--filler-->
             
+            <img style="height: 40px; margin-right: 10px;" src="${profilPictureLink}"/>
 
             <div class="dropdown ms-auto">
                 <div data-bs-toggle="dropdown" aria-expanded="false">

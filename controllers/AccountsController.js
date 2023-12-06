@@ -172,7 +172,7 @@ export default class AccountsController extends Controller {
     // GET:account/remove/id
     remove(id) { // warning! this is not an API endpoint
         if (Authorizations.writeGranted(this.HttpContext, Authorizations.user())) {
-            this.tokensRepository.keepByFilter(token => token.User.Id != id);
+            //this.tokensRepository.keepByFilter(token => token.User.Id != id);
             let previousAuthorization = this.authorizations;
             this.authorizations = Authorizations.user();
             super.remove(id);

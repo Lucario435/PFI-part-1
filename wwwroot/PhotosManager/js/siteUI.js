@@ -138,7 +138,9 @@ function renderDefault() { //page sur laquelle on va si non logged
 
     return renderAbout() //si on  est connecté et vérifie
 }
-let isNotLogged = () => !isLogged(); function isLogged() {
+let isNotLogged = () => !isLogged(); 
+
+function isLogged() {
     console.log(atokenExpire + " // " + Math.floor((Date.now() / 1000)))
     if (atokenExpire < Math.floor((Date.now() / 1000))) {
         atoken = undefined;
@@ -232,7 +234,7 @@ function renderConfirmDeleteAccount() {
 }
 
 function deleteAccount() {
-    if (isNotLogged()) { return renderDefault(); }
+    console.log(loggedUser.Id)
     API.unsubscribeAccount(loggedUser.Id);
     renderLoginForm("Votre compte a été supprimé!")
 }
