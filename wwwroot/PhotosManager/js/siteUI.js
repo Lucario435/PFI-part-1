@@ -263,23 +263,6 @@ function deleteAccount() {
     //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
 }
 
-function renderConfirmDeleteAccount() {
-    //Vérifier si le user est connecté
-    if (isNotLogged()) { return renderDefault(); }
-    noTimeout(); // ne pas limiter le temps d’inactivité
-    eraseContent(); // effacer le conteneur #content
-    $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
-    UpdateHeader("Retrait de compte", "deleteProfil"); // mettre à jour l’entête et menu
-    $("#content").html(getConfirmDeleteAccount());
-    onPageChanged();
-    $("#abortCmd").on("click", (e) => { e.preventDefault(); renderEditProfil() });
-}
-
-function deleteAccount() {
-    // if (isNotLogged()) { return renderDefault(); }
-    API.unsubscribeAccount(loggedUser.Id);
-    renderLoginForm("Votre compte a été supprimé!")
-}
 $(() => {
     renderLoginForm();
     onPageChange(() => {
