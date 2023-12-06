@@ -83,9 +83,9 @@ function getDropDownConnected() {
 Gestion des usagers
 </span>
 <div class="dropdown-divider"></div>
-<span class="dropdown-item" id="logoutCmd">
+<span class="dropdown-item" id="loginCmd">
 <i class="menuIcon fa fa-sign-out mx-2"></i>
-Déconnexion
+Connexion
 </span>
 <span class="dropdown-item" id="editProfilMenuCmd">
 <i class="menuIcon fa fa-user-edit mx-2"></i>
@@ -130,7 +130,7 @@ Mes photos
     <div class="dropdown-item" id="logoutCmd">
         <i class="menuIcon fa fa-sign-out mx-2"></i> Déconnexion
     </div>
-    <div class="dropdown-item" id="editProfilCmd">
+    <div class="dropdown-item" id="loginCmd">
         <i class="menuIcon fa fa-sign-in mx-2"></i> Connexion
     </div>
     <div class="dropdown-divider"></div>

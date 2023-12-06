@@ -1,3 +1,8 @@
+import { get as getHeader, loadScript as lsHeader } from "./views/header.js";
+import { get as getCreateProfile, loadScript as lsCP } from "./views/createProfile.js";
+import { get as getLogin, loadScript as lsLogin } from "./views/login.js";
+import { get as getEditProfile, loadScript as lsEP} from "./views/editProfile.js";
+
 let contentScrollPosition = 0;
 let currPage = "";
 let loggedUser = API.retrieveLoggedUser();
@@ -22,10 +27,6 @@ function restoreContentScrollPosition() {
 setTimeout(function () { // reload chaque seconde
     // window.location.reload();
 }, 2000);
-
-import { get as getHeader, loadScript as lsHeader } from "./views/header.js";
-import { get as getCreateProfile, loadScript as lsCP } from "./views/createProfile.js";
-import { get as getLogin, loadScript as lsLogin } from "./views/login.js";
 
 let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
@@ -90,6 +91,7 @@ function renderLoginForm(loginMessage,Email,passwordError,EmailError) {
     onPageChanged();
     lsLogin();
 }
+
 function renderCreateProfil() {
     noTimeout(); // ne pas limiter le temps d’inactivité
     eraseContent(); // effacer le conteneur #content
@@ -125,13 +127,36 @@ function renderCreateProfil() {
     addConflictValidation(API.checkConflictURL(), 'Email', 'saveUserCmd');
 }
 
+function renderEditProfil()
+{
+    //À vérifier : Enlever du header la partie edit profil si pas connecté
+    //Vérifier si le user est connecté
+    if(loggedUser != null)
+    {
+        noTimeout(); // ne pas limiter le temps d’inactivité
+        eraseContent(); // effacer le conteneur #content
+        UpdateHeader("Modification de profil", "editProfil"); // mettre à jour l’entête et menu
+        $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
+        $("#content").html(getEditProfile(loggedUser));
+        onPageChanged();
+        lsEP(initFormValidation);
+        addConflictValidation(API.checkConflictURL(), 'Email', 'saveUserCmd');
+    }
+    //Sinon, on redirige vers la page de connexion
+    else
+    {
+        renderLoginForm();
+    }
+}
+
 $(() => {
-    renderCreateProfil();
+    renderLoginForm();
     onPageChange(()=>{
         $("#loginCmd").on("click", (e) => {e.preventDefault();  renderLoginForm() })
         $("#createProfilCmd").on("click", (e) => {e.preventDefault(); renderCreateProfil() })    
         $("#abortCmd").on("click",(e)=>{e.preventDefault();});
         $("#aboutCmd").on("click",renderAbout)
+        $("#editProfilMenuCmd").on("click",renderEditProfil)
         console.log("pageChanged");
         // initImageUploaders();
         // initFormValidation(); seront loadé sur les loadScript de page le voulant a place
