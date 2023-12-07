@@ -5,12 +5,7 @@ import { get as getEditProfile, loadScript as lsEP } from "./views/editProfile.j
 import { get as getConfirmDeleteAccount } from "./views/confirmDeleteProfile.js";
 import { get as getVerify, loadScript as lsVF } from "./views/verify.js";
 import { get as getProbleme, loadScript as lsPB } from "./views/probleme.js";
-<<<<<<< Updated upstream
 import { get as getMGUsers, loadScript as lsMGUsers} from "./views/admin/manageUsers.js";
-=======
-import {get as getUserManager} from "./views/userManager.js";
-
->>>>>>> Stashed changes
 
 let contentScrollPosition = 0;
 let currPage = "";
@@ -42,12 +37,7 @@ setTimeout(function () { // reload chaque seconde
 
 let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
-<<<<<<< Updated upstream
-    $("#newPhotoCmd").hide();
-    $("#header").replaceWith(getHeader(titre, isLogged, API.retrieveLoggedUser())); //empty();
-=======
     $("#header").replaceWith(getHeader(titre, isLogged)); //empty();
->>>>>>> Stashed changes
     //$("#header").append(getHeader());
     lsHeader(logoutClick);
     currPage = pagename;
@@ -186,10 +176,7 @@ let isNotLogged = () => !isLogged(); function isLogged() {
     }
     let firstbool = atoken != undefined && loggedUser != undefined;
     // console.log(firstbool);
-<<<<<<< Updated upstream
     // console.log(loggedUser);
-=======
->>>>>>> Stashed changes
     if (firstbool)
         firstbool = firstbool && loggedUser.VerifyCode == "verified";
 

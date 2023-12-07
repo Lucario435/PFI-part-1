@@ -10,18 +10,6 @@ export function get(title,isLoggedFunc) {
     let loggedUser = API.retrieveLoggedUser();
     let isAdmin = false;
     let connected = false;
-<<<<<<< Updated upstream
-    let profilPictureLink = "";
-
-    if(!profilPictureLink.includes("jpeg"))
-    {
-        // console.log("is empty");
-        profilPictureLink = "images/no-avatar.png";
-    }
-
-    if(isLoggedFunc()){
-        connected = true;
-=======
     let profilPictureImage = "";
     if(isLoggedFunc()){
         connected = true;
@@ -33,7 +21,6 @@ export function get(title,isLoggedFunc) {
         {
             profilPictureImage = "<img style=\"height: 40px; width:40px; margin-right: 10px;border-radius:500px;object-fit: cover;\" src=\"images/no-avatar.png\"/>";
         }
->>>>>>> Stashed changes
         if(loggedUser.Authorizations.writeAccess == 3){
             isAdmin = true;
         }
@@ -86,54 +73,6 @@ function getDropDownAnonyme() {
 }
 function getDropDownConnected(isAdmin) {
     return `
-<<<<<<< Updated upstream
-    ${isAdmin? `<span class="dropdown-item" id="manageUserCmd">
-    <i class="menuIcon fas fa-user-cog mx-2"></i>
-    Gestion des usagers
-    </span><div class="dropdown-divider"></div>
-    <span class="dropdown-item" id="logoutCmd">
-    <i class="menuIcon fa fa-sign-out mx-2"></i>
-    Déconnexion
-    </span>` : ""}
-
-<span class="dropdown-item" id="editProfilMenuCmd">
-<i class="menuIcon fa fa-user-edit mx-2"></i>
-Modifier votre profil
-</span>
-<div class="dropdown-divider"></div>
-<span class="dropdown-item" id="listPhotosMenuCmd">
-<i class="menuIcon fa fa-image mx-2"></i>
-Liste des photos
-</span>
-<div class="dropdown-divider"></div>
-<span class="dropdown-item hfiltre" id="sortByDateCmd">
-<i class="menuIcon fa fa-check mx-2"></i>
-<i class="menuIcon fa fa-calendar mx-2"></i>
-Photos par date de création
-</span>
-<span class="dropdown-item hfiltre" id="sortByOwnersCmd">
-<i class="menuIcon fa fa-fw mx-2"></i>
-<i class="menuIcon fa fa-users mx-2"></i>
-Photos par créateur
-</span>
-<span class="dropdown-item hfiltre" id="sortByLikesCmd">
-<i class="menuIcon fa fa-fw mx-2"></i>
-<i class="menuIcon fa fa-user mx-2"></i>
-Photos les plus aiméés
-</span>
-<span class="dropdown-item hfiltre" id="ownerOnlyCmd">
-<i class="menuIcon fa fa-fw mx-2"></i>
-<i class="menuIcon fa fa-user mx-2"></i>
-Mes photos
-</span>
-<div class="dropdown-divider"></div>
-<span class="dropdown-item" id="aboutCmd">
-<i class="menuIcon fa fa-info-circle mx-2"></i>
-À propos...
-</span>
-
-    
-=======
     ${isAdmin ? `<span class="dropdown-item" id="manageUserCmd">
     <i class="menuIcon fas fa-user-cog mx-2"></i>
     Gestion des usagers
@@ -177,7 +116,6 @@ Mes photos
     <i class="menuIcon fa fa-info-circle mx-2"></i>
     À propos...
     </span>    
->>>>>>> Stashed changes
     `;
     
     return `
