@@ -5,7 +5,7 @@ import { get as getEditProfile, loadScript as lsEP } from "./views/editProfile.j
 import { get as getConfirmDeleteAccount } from "./views/confirmDeleteProfile.js";
 import { get as getVerify, loadScript as lsVF } from "./views/verify.js";
 import { get as getProbleme, loadScript as lsPB } from "./views/probleme.js";
-
+import { get as getMGUsers, loadScript as lsMGUsers} from "./views/admin/manageUsers.js";
 
 let contentScrollPosition = 0;
 let currPage = "";
@@ -37,7 +37,8 @@ setTimeout(function () { // reload chaque seconde
 
 let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
-    $("#header").replaceWith(getHeader(titre, isLogged, loggedUser)); //empty();
+    $("#newPhotoCmd").hide();
+    $("#header").replaceWith(getHeader(titre, isLogged, API.retrieveLoggedUser())); //empty();
     //$("#header").append(getHeader());
     lsHeader(logoutClick);
     currPage = pagename;
@@ -46,9 +47,9 @@ function UpdateHeader(titre, pagename) {
 function logoutClick() {
     // console.log("log out")
     API.logout();
-    loggedUser = undefined;
-    atoken = undefined;
-    atokenExpire = undefined;
+    loggedUser      = undefined;
+    atoken          = undefined;
+    atokenExpire    = undefined;
     renderDefault();
 }
 function onPageChange(func) {
@@ -109,6 +110,10 @@ function renderLoginForm(loginMessage, Email, passwordError, EmailError) {
             // console.log(atoken);
             if (atoken != undefined) {
                 renderDefault();
+                initTimeout(atokenExpire-Math.floor((Date.now() / 1000)),function(){
+                    renderLoginForm("Votre session s'est expirée. Veuillez vous reconnecter")
+                })
+                startCountdown();
             }
         })
     })
@@ -168,11 +173,11 @@ let isNotLogged = () => !isLogged(); function isLogged() {
         atoken = undefined;
         loggedUser = undefined;
         // console.log("und");
-        return renderProbleme("Session expiré!");
+        // return renderProbleme("Session expiré!");
     }
     let firstbool = atoken != undefined && loggedUser != undefined;
     // console.log(firstbool);
-    console.log(loggedUser);
+    // console.log(loggedUser);
     if (firstbool)
         firstbool = firstbool && loggedUser.VerifyCode == "verified";
 
@@ -242,7 +247,44 @@ function renderEditProfil() {
     lsEP(initFormValidation);
     //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
 }
+async function getProfile(uid){
+    let xel;
+    try {
+        const d = await API.GetAccounts();
+        const data = d.data;
+        let xel;
+        data.forEach(element => {
+            if (element.Id == uid) {
+                xel = element;
+            }
+        });
 
+        return xel;
+    } catch (error){return {}}
+}
+function renderManageUsers(){
+    if(isNotLogged()){return renderDefault();}
+    if(loggedUser.Authorizations.readAccess < 2){return renderDefault();}
+    let userlist = [];
+    API.GetAccounts().then((d)=>{
+        let data = d.data
+        data.forEach(element => {
+            userlist.push(element);
+        });
+        $("#content").html(getMGUsers(userlist));
+        lsMGUsers(renderManageUsers,adminModifyUser);
+    }).catch((e) => {renderProbleme("Un problème d'obtention de liste usager s'est produit")} )
+}
+async function adminModifyUser(id,attr,val,callBack){
+    let rpro = await getProfile(id);
+    let profilex =  {Id:id, Name:rpro.Name,Email:rpro.Email,
+        Password:rpro.Password,VerifyCode:rpro.VerifyCode}; //await getProfile(id);
+    profilex[attr] = val;
+    profilex.Avatar = "";
+    // console.log(id);
+    console.log(profilex);
+    await API.modifyUserProfil(profilex,true).then(callBack);
+}
 function renderConfirmDeleteAccount() {
     //Vérifier si le user est connecté
     if (isNotLogged()) { return renderDefault(); }
@@ -270,6 +312,7 @@ $(() => {
         $("#createProfilCmd").on("click", (e) => { e.preventDefault(); renderCreateProfil() })
         $("#abortCmd").on("click", (e) => { e.preventDefault(); });
         $("#aboutCmd").on("click", renderAbout)
+        $("#manageUserCmd").on("click",()=>{renderManageUsers()})
 
         //-------EDIT PROFIL
         $("#editProfilMenuCmd").on("click", (e) => { e.preventDefault(); renderEditProfil() })

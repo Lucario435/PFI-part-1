@@ -137,6 +137,7 @@ export default class AccountsController extends Controller {
             if (this.repository != null) {
                 user.Created = utilities.nowInSeconds();
                 let foundedUser = this.repository.findByField("Id", user.Id);
+                console.log(user);
                 if (foundedUser != null) {
                     user.Authorizations = foundedUser.Authorizations; // user cannot change its own authorizations
                     // user.VerifyCode = foundedUser.VerifyCode; //commit du prof

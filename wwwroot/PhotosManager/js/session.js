@@ -38,7 +38,8 @@ function startCountdown() {
     $(".popup").hide();
     timeLeft = maxStallingTime;
     if (timeLeft != infinite) {
-        currentTimeouID = setInterval(() => {
+        currentTimeouID = setInterval(() => { 
+            // console.log("haha", timeLeft);
             timeLeft = timeLeft - 1;
             if (timeLeft > 0) {
                 if (timeLeft <= 10) {

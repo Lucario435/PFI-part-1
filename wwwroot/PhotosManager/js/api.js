@@ -119,7 +119,7 @@ class API {
             });
         });
     }
-    static modifyUserProfil(profil) {
+    static modifyUserProfil(profil,adminAccess) {
         API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
@@ -129,7 +129,8 @@ class API {
                 headers: API.getBearerAuthorizationToken(),
                 data: JSON.stringify(profil),
                 success: (profil) => {
-                    API.storeLoggedUser(profil);
+                    if(adminAccess != true)
+                        API.storeLoggedUser(profil);
                     resolve(profil);
                 },
                 error: xhr => { API.setHttpErrorState(xhr); resolve(false); }

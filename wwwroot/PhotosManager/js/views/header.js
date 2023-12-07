@@ -14,13 +14,13 @@ export function get(title,isLoggedFunc,loggedUser) {
 
     if(!profilPictureLink.includes("jpeg"))
     {
-        console.log("is empty");
+        // console.log("is empty");
         profilPictureLink = "images/no-avatar.png";
     }
 
     if(isLoggedFunc()){
         connected = true;
-        if(loggedUser.Authorizations.WriteAccess == 3){
+        if(loggedUser.Authorizations.writeAccess == 3){
             isAdmin = true;
         }
     }
@@ -72,15 +72,15 @@ function getDropDownAnonyme() {
 }
 function getDropDownConnected(isAdmin) {
     return `
-    ${isAdmin? `<span class="dropdown-item" id="manageUserCm">
+    ${isAdmin? `<span class="dropdown-item" id="manageUserCmd">
     <i class="menuIcon fas fa-user-cog mx-2"></i>
     Gestion des usagers
+    </span><div class="dropdown-divider"></div>
+    <span class="dropdown-item" id="logoutCmd">
+    <i class="menuIcon fa fa-sign-out mx-2"></i>
+    Déconnexion
     </span>` : ""}
-<div class="dropdown-divider"></div>
-<span class="dropdown-item" id="logoutCmd">
-<i class="menuIcon fa fa-sign-out mx-2"></i>
-Déconnexion
-</span>
+
 <span class="dropdown-item" id="editProfilMenuCmd">
 <i class="menuIcon fa fa-user-edit mx-2"></i>
 Modifier votre profil
