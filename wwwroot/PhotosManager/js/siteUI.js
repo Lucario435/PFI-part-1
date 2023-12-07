@@ -304,6 +304,7 @@ function deleteAccount() {
     //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
 }
 
+/*
 function renderUserManager() {
         //Vérifier si le user est admin
         //if (isNotLogged()) { return renderDefault(); }
@@ -317,7 +318,7 @@ function renderUserManager() {
         onPageChanged();
         $("#abortCmd").on("click", (e) => { e.preventDefault(); renderLoginForm() });
 }
-
+*/
 
 $(() => {
     renderLoginForm();
@@ -338,7 +339,7 @@ $(() => {
         //-----------------------
 
         //-------MANAGE PROFIL FOR ADMIN
-        $("#manageUserCmd").on("click", (e) => { e.preventDefault(); renderUserManager()});
+        //$("#manageUserCmd").on("click", (e) => { e.preventDefault(); renderUserManager()});
         //------------------------------
     })
     onPageChanged();
