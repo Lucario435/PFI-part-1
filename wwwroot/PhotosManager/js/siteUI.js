@@ -5,7 +5,12 @@ import { get as getEditProfile, loadScript as lsEP } from "./views/editProfile.j
 import { get as getConfirmDeleteAccount } from "./views/confirmDeleteProfile.js";
 import { get as getVerify, loadScript as lsVF } from "./views/verify.js";
 import { get as getProbleme, loadScript as lsPB } from "./views/probleme.js";
+<<<<<<< Updated upstream
 import { get as getMGUsers, loadScript as lsMGUsers} from "./views/admin/manageUsers.js";
+=======
+import {get as getUserManager} from "./views/userManager.js";
+
+>>>>>>> Stashed changes
 
 let contentScrollPosition = 0;
 let currPage = "";
@@ -37,8 +42,12 @@ setTimeout(function () { // reload chaque seconde
 
 let _onPageChangeFuncs = [];
 function UpdateHeader(titre, pagename) {
+<<<<<<< Updated upstream
     $("#newPhotoCmd").hide();
     $("#header").replaceWith(getHeader(titre, isLogged, API.retrieveLoggedUser())); //empty();
+=======
+    $("#header").replaceWith(getHeader(titre, isLogged)); //empty();
+>>>>>>> Stashed changes
     //$("#header").append(getHeader());
     lsHeader(logoutClick);
     currPage = pagename;
@@ -177,7 +186,10 @@ let isNotLogged = () => !isLogged(); function isLogged() {
     }
     let firstbool = atoken != undefined && loggedUser != undefined;
     // console.log(firstbool);
+<<<<<<< Updated upstream
     // console.log(loggedUser);
+=======
+>>>>>>> Stashed changes
     if (firstbool)
         firstbool = firstbool && loggedUser.VerifyCode == "verified";
 
@@ -242,7 +254,7 @@ function renderEditProfil() {
             renderLoginForm("Votre compte a été modifié!")
         }, function (error) { renderLoginForm("Une erreur est survenue lors de la modification.") });
     });
-
+    $("#abortCmd").on("click", (e) => { e.preventDefault(); renderLoginForm() });
     onPageChanged();
     lsEP(initFormValidation);
     //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
@@ -305,6 +317,21 @@ function deleteAccount() {
     //addConflictValidation(API.checkConflictURL(), 'Email', 'editUserCmd');
 }
 
+function renderUserManager() {
+        //Vérifier si le user est admin
+        //if (isNotLogged()) { return renderDefault(); }
+
+
+        noTimeout(); // ne pas limiter le temps d’inactivité
+        eraseContent(); // effacer le conteneur #content
+        $("#newPhotoCmd").hide(); // camouffler l’icone de commande d’ajout de photo
+        UpdateHeader("Gestion des usagers", "manageUsers"); // mettre à jour l’entête et menu
+        $("#content").html(getUserManager());
+        onPageChanged();
+        $("#abortCmd").on("click", (e) => { e.preventDefault(); renderLoginForm() });
+}
+
+
 $(() => {
     renderLoginForm();
     onPageChange(() => {
@@ -322,6 +349,10 @@ $(() => {
         $("#deletePageCmd").on("click", (e) => { e.preventDefault(); renderConfirmDeleteAccount() });
         $("#deleteAccountCmd").on("click", (e) => { e.preventDefault(); deleteAccount() });//delete account
         //-----------------------
+
+        //-------MANAGE PROFIL FOR ADMIN
+        $("#manageUserCmd").on("click", (e) => { e.preventDefault(); renderUserManager()});
+        //------------------------------
     })
     onPageChanged();
 })
