@@ -153,7 +153,7 @@ function renderVerify(erreurMsg) {
 }
 function renderProbleme(msg) {
     UpdateHeader("Problème", "problem");
-    $("#content").html(getProbleme());
+    $("#content").html(getProbleme(msg));
     lsPB();
 }
 function renderDefault() { //page sur laquelle on va si non logged
@@ -263,7 +263,7 @@ async function getProfile(uid){
 }
 function renderManageUsers(){
     if(isNotLogged()){return renderDefault();}
-    if(loggedUser.Authorizations.readAccess < 2){return renderDefault();}
+    if(loggedUser.Authorizations.readAccess <= 2){return renderDefault();}
     let userlist = [];
     API.GetAccounts().then((d)=>{
         let data = d.data
