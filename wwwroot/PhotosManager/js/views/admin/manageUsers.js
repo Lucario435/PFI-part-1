@@ -11,7 +11,7 @@ export function get(userlist){
 function getUserTile(user){
     let authz = user.Authorizations;
 
-    let isAdmin = authz.readAccess == 2 && authz.writeAccess == 2 ? true : false;
+    let isAdmin = authz.readAccess >= 2 && authz.writeAccess >= 2 ? true : false;
     let isBanned = authz.readAccess == 0 && authz.writeAccess == 0 ? true : false;
 
     let userIconClass = isAdmin ? "fas fa-user-cog" : "fas fa-user-alt";
@@ -39,18 +39,15 @@ export function loadScript(renderManageUsersx,adminModifyUser){
         uid = uid.replace("xuid.","");
     
         let isAdmin = balise.attr("isadmin");
-        let callBack = ()=>{console.log("e"); renderManageUsersx()}
+        let callBackx = ()=>{renderManageUsersx()}
         // console.log(isAdmin);
-        
-
-        element.className = "";
+        // element.className = "";
         if( "true" == isAdmin || JSON.parse(isAdmin))
-            adminModifyUser(uid,"Authorizations",{readAccess:1, writeAccess:1},callBack);
+            adminModifyUser(uid,"Authorizations",{readAccess:1, writeAccess:1},callBackx);
             // balise.removeClass("")
         else{
-            adminModifyUser(uid,"Authorizations",{readAccess:2, writeAccess:2},callBack);
+            adminModifyUser(uid,"Authorizations",{readAccess:2, writeAccess:2},callBackx);
         }
-        
     })
     $(".xban").on("click",function(e){
         let balise = $(this);

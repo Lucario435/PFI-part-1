@@ -257,13 +257,12 @@ async function getProfile(uid){
                 xel = element;
             }
         });
-
         return xel;
     } catch (error){return {}}
 }
 function renderManageUsers(){
     if(isNotLogged()){return renderDefault();}
-    if(loggedUser.Authorizations.readAccess <= 2){return renderDefault();}
+    if(loggedUser.Authorizations.readAccess < 2){return renderDefault();}
     let userlist = [];
     API.GetAccounts().then((d)=>{
         let data = d.data
